@@ -1,13 +1,14 @@
 pragma solidity ^0.4.18;
 
 import "./ERC721.sol";
+import "./Weighted.sol";
 import "../../math/SafeMath.sol";
 
 /**
  * @title ERC721Token
  * Generic implementation for the required functionality of the ERC721 standard
  */
-contract ERC721Token is ERC721 {
+contract ERC721Token is ERC721, Weighted {
   using SafeMath for uint256;
 
   Token[] tokens;
@@ -233,6 +234,7 @@ contract ERC721Token is ERC721 {
     totalVotingWeight += _token.weight;
 
     totalTokens = totalTokens.add(1);
+    AddWeight(_to, _token.weight);
   }
 
   /**
@@ -263,5 +265,6 @@ contract ERC721Token is ERC721 {
     totalVotingWeight -= _token.weight;
 
     totalTokens = totalTokens.sub(1);
+    RemoveWeight(_to, _token.weight);
   }
 }
