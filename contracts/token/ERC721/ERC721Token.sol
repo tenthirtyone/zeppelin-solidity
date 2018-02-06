@@ -36,6 +36,14 @@ contract ERC721Token is ERC721 {
   // Mapping from token ID to index of the owner tokens list
   mapping(uint256 => uint256) private ownedTokensIndex;
 
+  function ERC721Token() public {
+    Token memory _token = Token({
+      weight: 0
+    });
+
+    tokens.push(_token);
+  }
+
   /**
   * @dev Guarantees msg.sender is owner of the given token
   * @param _tokenId uint256 ID of the token to validate its ownership belongs to msg.sender
@@ -147,6 +155,13 @@ contract ERC721Token is ERC721 {
   */
   function _mint(address _to, uint256 _tokenId) internal {
     require(_to != address(0));
+
+    Token memory _token = Token({
+      weight: 100
+    });
+
+    tokens.push(_token);
+
     addToken(_to, _tokenId);
     Transfer(0x0, _to, _tokenId);
   }
@@ -212,6 +227,11 @@ contract ERC721Token is ERC721 {
     uint256 length = assetCount(_to);
     ownedTokens[_to].push(_tokenId);
     ownedTokensIndex[_tokenId] = length;
+
+    Token storage _token = tokens[_tokenId];
+    votingWeight[_to] += _token.weight;
+    totalVotingWeight += _token.weight;
+
     totalTokens = totalTokens.add(1);
   }
 
@@ -237,6 +257,11 @@ contract ERC721Token is ERC721 {
     ownedTokens[_from].length--;
     ownedTokensIndex[_tokenId] = 0;
     ownedTokensIndex[lastToken] = tokenIndex;
+
+    Token storage _token = tokens[_tokenId];
+    votingWeight[_from] -= _token.weight;
+    totalVotingWeight -= _token.weight;
+
     totalTokens = totalTokens.sub(1);
   }
 }
