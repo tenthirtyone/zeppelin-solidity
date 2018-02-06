@@ -234,7 +234,7 @@ contract ERC721Token is ERC721, Weighted {
     totalVotingWeight += _token.weight;
 
     totalTokens = totalTokens.add(1);
-    AddWeight(_to, _token.weight);
+    //AddWeight(_to, _token.weight);
   }
 
   /**
@@ -265,6 +265,6 @@ contract ERC721Token is ERC721, Weighted {
     totalVotingWeight -= _token.weight;
 
     totalTokens = totalTokens.sub(1);
-    RemoveWeight(_to, _token.weight);
+    //RemoveWeight(_from, _token.weight);
   }
 }
