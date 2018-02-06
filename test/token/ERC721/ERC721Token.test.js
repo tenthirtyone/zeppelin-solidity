@@ -28,17 +28,17 @@ contract('ERC721Token', accounts => {
     });
   });
 
-  describe('balanceOf', function () {
+  describe('assetCount', function () {
     describe('when the given address owns some tokens', function () {
       it('returns the amount of tokens owned by the given address', async function () {
-        const balance = await token.balanceOf(_creator);
+        const balance = await token.assetCount(_creator);
         balance.should.be.bignumber.equal(2);
       });
     });
 
     describe('when the given address does not own any tokens', function () {
       it('returns 0', async function () {
-        const balance = await token.balanceOf(accounts[1]);
+        const balance = await token.assetCount(accounts[1]);
         balance.should.be.bignumber.equal(0);
       });
     });
@@ -71,14 +71,14 @@ contract('ERC721Token', accounts => {
         const to = accounts[1];
 
         it('mints the given token ID to the given address', async function () {
-          const previousBalance = await token.balanceOf(to);
+          const previousBalance = await token.assetCount(to);
 
           await token.mint(to, tokenId);
 
           const owner = await token.ownerOf(tokenId);
           owner.should.be.equal(to);
 
-          const balance = await token.balanceOf(to);
+          const balance = await token.assetCount(to);
           balance.should.be.bignumber.equal(previousBalance + 1);
         });
 
@@ -127,12 +127,12 @@ contract('ERC721Token', accounts => {
         const sender = _creator;
 
         it('burns the given token ID and adjusts the balance of the owner', async function () {
-          const previousBalance = await token.balanceOf(sender);
+          const previousBalance = await token.assetCount(sender);
 
           await token.burn(tokenId, { from: sender });
 
           await assertRevert(token.ownerOf(tokenId));
-          const balance = await token.balanceOf(sender);
+          const balance = await token.assetCount(sender);
           balance.should.be.bignumber.equal(previousBalance - 1);
         });
 
@@ -239,13 +239,13 @@ contract('ERC721Token', accounts => {
           });
 
           it('adjusts owners balances', async function () {
-            const previousBalance = await token.balanceOf(sender);
+            const previousBalance = await token.assetCount(sender);
             await token.transfer(to, tokenId, { from: sender });
 
-            const newOwnerBalance = await token.balanceOf(to);
+            const newOwnerBalance = await token.assetCount(to);
             newOwnerBalance.should.be.bignumber.equal(1);
 
-            const previousOwnerBalance = await token.balanceOf(_creator);
+            const previousOwnerBalance = await token.assetCount(_creator);
             previousOwnerBalance.should.be.bignumber.equal(previousBalance - 1);
           });
 
@@ -486,14 +486,14 @@ contract('ERC721Token', accounts => {
         });
 
         it('adjusts owners balances', async function () {
-          const previousBalance = await token.balanceOf(_creator);
+          const previousBalance = await token.assetCount(_creator);
 
           await token.takeOwnership(tokenId, { from: sender });
 
-          const newOwnerBalance = await token.balanceOf(sender);
+          const newOwnerBalance = await token.assetCount(sender);
           newOwnerBalance.should.be.bignumber.equal(1);
 
-          const previousOwnerBalance = await token.balanceOf(_creator);
+          const previousOwnerBalance = await token.assetCount(_creator);
           previousOwnerBalance.should.be.bignumber.equal(previousBalance - 1);
         });
 

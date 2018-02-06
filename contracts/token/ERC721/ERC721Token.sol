@@ -10,8 +10,16 @@ import "../../math/SafeMath.sol";
 contract ERC721Token is ERC721 {
   using SafeMath for uint256;
 
+  Token[] tokens;
+
+  struct Token {
+    uint32 weight;
+  }
+
   // Total amount of tokens
   uint256 private totalTokens;
+
+  uint256 private totalVotingWeight;
 
   // Mapping from token ID to owner
   mapping (uint256 => address) private tokenOwner;
@@ -21,6 +29,9 @@ contract ERC721Token is ERC721 {
 
   // Mapping from owner to list of owned token IDs
   mapping (address => uint256[]) private ownedTokens;
+
+  // Mapping from owner to voting weight
+  mapping (address => uint256) private votingWeight;
 
   // Mapping from token ID to index of the owner tokens list
   mapping(uint256 => uint256) private ownedTokensIndex;
@@ -43,12 +54,29 @@ contract ERC721Token is ERC721 {
   }
 
   /**
+  * @dev Gets the total amount of tokens stored by the contract
+  * @return uint256 representing the voting weight of tokens
+  */
+  function totalWeight() public view returns (uint256) {
+    return totalVotingWeight;
+  }
+
+  /**
+  * @dev Gets the asset count of the specified address
+  * @param _owner address to query the balance of
+  * @return uint256 representing the amount owned by the passed address
+  */
+  function assetCount(address _owner) public view returns (uint256) {
+    return ownedTokens[_owner].length;
+  }
+
+  /**
   * @dev Gets the balance of the specified address
   * @param _owner address to query the balance of
   * @return uint256 representing the amount owned by the passed address
   */
   function balanceOf(address _owner) public view returns (uint256) {
-    return ownedTokens[_owner].length;
+    return votingWeight[_owner];
   }
 
   /**
@@ -181,7 +209,7 @@ contract ERC721Token is ERC721 {
   function addToken(address _to, uint256 _tokenId) private {
     require(tokenOwner[_tokenId] == address(0));
     tokenOwner[_tokenId] = _to;
-    uint256 length = balanceOf(_to);
+    uint256 length = assetCount(_to);
     ownedTokens[_to].push(_tokenId);
     ownedTokensIndex[_tokenId] = length;
     totalTokens = totalTokens.add(1);
@@ -196,7 +224,7 @@ contract ERC721Token is ERC721 {
     require(ownerOf(_tokenId) == _from);
 
     uint256 tokenIndex = ownedTokensIndex[_tokenId];
-    uint256 lastTokenIndex = balanceOf(_from).sub(1);
+    uint256 lastTokenIndex = assetCount(_from).sub(1);
     uint256 lastToken = ownedTokens[_from][lastTokenIndex];
 
     tokenOwner[_tokenId] = 0;
