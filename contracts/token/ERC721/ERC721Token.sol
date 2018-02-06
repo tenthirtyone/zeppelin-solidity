@@ -20,6 +20,7 @@ contract ERC721Token is ERC721, Weighted {
   // Total amount of tokens
   uint256 private totalTokens;
 
+  // Total weight tracked by the contract
   uint256 private totalVotingWeight;
 
   // Mapping from token ID to owner
