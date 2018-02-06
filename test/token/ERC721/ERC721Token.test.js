@@ -28,18 +28,42 @@ contract('ERC721Token', accounts => {
     });
   });
 
-  describe('assetCount', function () {
-    describe('when the given address owns some tokens', function () {
-      it('returns the amount of tokens owned by the given address', async function () {
-        const balance = await token.assetCount(_creator);
-        balance.should.be.bignumber.equal(2);
+  describe('totalWeight', function () {
+    it('has a total weight equivalent to the inital supply * 100', async function () {
+      const totalWeight = await token.totalWeight();
+
+      totalWeight.should.be.bignumber.equal(200);
+    });
+  });
+
+  describe('balanceOf', function () {
+    describe('when the given address owns some tokens with weight', function () {
+      it('returns the amount of weight controlled by the give address', async function () {
+        const balance = await token.balanceOf(_creator);
+        balance.should.be.bignumber.equal(200);
       });
     });
 
     describe('when the given address does not own any tokens', function () {
       it('returns 0', async function () {
-        const balance = await token.assetCount(accounts[1]);
+        const balance = await token.balanceOf(accounts[1]);
         balance.should.be.bignumber.equal(0);
+      });
+    });
+  });
+
+  describe('assetCount', function () {
+    describe('when the given address owns some tokens', function () {
+      it('returns the amount of tokens owned by the given address', async function () {
+        const count = await token.assetCount(_creator);
+        count.should.be.bignumber.equal(2);
+      });
+    });
+
+    describe('when the given address does not own any tokens', function () {
+      it('returns 0', async function () {
+        const count = await token.assetCount(accounts[1]);
+        count.should.be.bignumber.equal(0);
       });
     });
   });
@@ -71,15 +95,15 @@ contract('ERC721Token', accounts => {
         const to = accounts[1];
 
         it('mints the given token ID to the given address', async function () {
-          const previousBalance = await token.assetCount(to);
+          const previousCount = await token.assetCount(to);
 
           await token.mint(to, tokenId);
 
           const owner = await token.ownerOf(tokenId);
           owner.should.be.equal(to);
 
-          const balance = await token.assetCount(to);
-          balance.should.be.bignumber.equal(previousBalance + 1);
+          const count = await token.assetCount(to);
+          count.should.be.bignumber.equal(previousCount + 1);
         });
 
         it('adds that token to the token list of the owner', async function () {
@@ -126,14 +150,14 @@ contract('ERC721Token', accounts => {
       describe('when the msg.sender owns given token', function () {
         const sender = _creator;
 
-        it('burns the given token ID and adjusts the balance of the owner', async function () {
-          const previousBalance = await token.assetCount(sender);
+        it('burns the given token ID and adjusts the asset count of the owner', async function () {
+          const previousCount = await token.assetCount(sender);
 
           await token.burn(tokenId, { from: sender });
 
           await assertRevert(token.ownerOf(tokenId));
-          const balance = await token.assetCount(sender);
-          balance.should.be.bignumber.equal(previousBalance - 1);
+          const count = await token.assetCount(sender);
+          count.should.be.bignumber.equal(previousCount - 1);
         });
 
         it('removes that token from the token list of the owner', async function () {
@@ -238,15 +262,15 @@ contract('ERC721Token', accounts => {
             logs[1].args._tokenId.should.be.bignumber.equal(tokenId);
           });
 
-          it('adjusts owners balances', async function () {
-            const previousBalance = await token.assetCount(sender);
+          it('adjusts owners counts', async function () {
+            const previousCount = await token.assetCount(sender);
             await token.transfer(to, tokenId, { from: sender });
 
-            const newOwnerBalance = await token.assetCount(to);
-            newOwnerBalance.should.be.bignumber.equal(1);
+            const newOwnerCount = await token.assetCount(to);
+            newOwnerCount.should.be.bignumber.equal(1);
 
-            const previousOwnerBalance = await token.assetCount(_creator);
-            previousOwnerBalance.should.be.bignumber.equal(previousBalance - 1);
+            const previousOwnerCount = await token.assetCount(_creator);
+            previousOwnerCount.should.be.bignumber.equal(previousCount - 1);
           });
 
           it('adds the token to the tokens list of the new owner', async function () {
@@ -485,16 +509,16 @@ contract('ERC721Token', accounts => {
           logs[1].args._tokenId.should.be.bignumber.equal(tokenId);
         });
 
-        it('adjusts owners balances', async function () {
-          const previousBalance = await token.assetCount(_creator);
+        it('adjusts owners counts', async function () {
+          const previousCount = await token.assetCount(_creator);
 
           await token.takeOwnership(tokenId, { from: sender });
 
-          const newOwnerBalance = await token.assetCount(sender);
-          newOwnerBalance.should.be.bignumber.equal(1);
+          const newOwnerCount = await token.assetCount(sender);
+          newOwnerCount.should.be.bignumber.equal(1);
 
-          const previousOwnerBalance = await token.assetCount(_creator);
-          previousOwnerBalance.should.be.bignumber.equal(previousBalance - 1);
+          const previousOwnerCount = await token.assetCount(_creator);
+          previousOwnerCount.should.be.bignumber.equal(previousCount - 1);
         });
 
         it('adds the token to the tokens list of the new owner', async function () {
