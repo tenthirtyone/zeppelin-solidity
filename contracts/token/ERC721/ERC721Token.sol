@@ -228,13 +228,13 @@ contract ERC721Token is ERC721, Weighted {
     uint256 length = assetCount(_to);
     ownedTokens[_to].push(_tokenId);
     ownedTokensIndex[_tokenId] = length;
+    totalTokens = totalTokens.add(1);
 
     Token storage _token = tokens[_tokenId];
     votingWeight[_to] += _token.weight;
     totalVotingWeight += _token.weight;
 
-    totalTokens = totalTokens.add(1);
-    //AddWeight(_to, _token.weight);
+    AddWeight(_to, _token.weight);
   }
 
   /**
@@ -259,12 +259,12 @@ contract ERC721Token is ERC721, Weighted {
     ownedTokens[_from].length--;
     ownedTokensIndex[_tokenId] = 0;
     ownedTokensIndex[lastToken] = tokenIndex;
+    totalTokens = totalTokens.sub(1);
 
     Token storage _token = tokens[_tokenId];
     votingWeight[_from] -= _token.weight;
     totalVotingWeight -= _token.weight;
 
-    totalTokens = totalTokens.sub(1);
-    //RemoveWeight(_from, _token.weight);
+    RemoveWeight(_from, _token.weight);
   }
 }

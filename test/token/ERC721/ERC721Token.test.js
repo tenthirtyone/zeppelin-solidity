@@ -17,6 +17,7 @@ contract('ERC721Token', accounts => {
 
   beforeEach(async function () {
     token = await ERC721Token.new({ from: _creator });
+
     await token.mint(_creator, _firstTokenId, { from: _creator });
     await token.mint(_creator, _secondTokenId, { from: _creator });
   });
@@ -117,11 +118,11 @@ contract('ERC721Token', accounts => {
         it('emits a transfer event', async function () {
           const { logs } = await token.mint(to, tokenId);
 
-          logs.length.should.be.equal(1);
-          logs[0].event.should.be.eq('Transfer');
-          logs[0].args._from.should.be.equal(ZERO_ADDRESS);
-          logs[0].args._to.should.be.equal(to);
-          logs[0].args._tokenId.should.be.bignumber.equal(tokenId);
+          logs.length.should.be.equal(2);
+          logs[1].event.should.be.eq('Transfer');
+          logs[1].args._from.should.be.equal(ZERO_ADDRESS);
+          logs[1].args._to.should.be.equal(to);
+          logs[1].args._tokenId.should.be.bignumber.equal(tokenId);
         });
       });
 
@@ -171,11 +172,11 @@ contract('ERC721Token', accounts => {
         it('emits a burn event', async function () {
           const { logs } = await token.burn(tokenId, { from: sender });
 
-          logs.length.should.be.equal(1);
-          logs[0].event.should.be.eq('Transfer');
-          logs[0].args._from.should.be.equal(sender);
-          logs[0].args._to.should.be.equal(ZERO_ADDRESS);
-          logs[0].args._tokenId.should.be.bignumber.equal(tokenId);
+          logs.length.should.be.equal(2);
+          logs[1].event.should.be.eq('Transfer');
+          logs[1].args._from.should.be.equal(sender);
+          logs[1].args._to.should.be.equal(ZERO_ADDRESS);
+          logs[1].args._tokenId.should.be.bignumber.equal(tokenId);
         });
 
         describe('when there is an approval for the given token ID', function () {
@@ -192,7 +193,7 @@ contract('ERC721Token', accounts => {
           it('emits an approval event', async function () {
             const { logs } = await token.burn(tokenId, { from: sender });
 
-            logs.length.should.be.equal(2);
+            logs.length.should.be.equal(3);
 
             logs[0].event.should.be.eq('Approval');
             logs[0].args._owner.should.be.equal(sender);
@@ -249,17 +250,17 @@ contract('ERC721Token', accounts => {
           it('emits an approval and transfer events', async function () {
             const { logs } = await token.transfer(to, tokenId, { from: sender });
 
-            logs.length.should.be.equal(2);
+            logs.length.should.be.equal(4);
 
             logs[0].event.should.be.eq('Approval');
             logs[0].args._owner.should.be.equal(sender);
             logs[0].args._approved.should.be.equal(ZERO_ADDRESS);
             logs[0].args._tokenId.should.be.bignumber.equal(tokenId);
 
-            logs[1].event.should.be.eq('Transfer');
-            logs[1].args._from.should.be.equal(sender);
-            logs[1].args._to.should.be.equal(to);
-            logs[1].args._tokenId.should.be.bignumber.equal(tokenId);
+            logs[3].event.should.be.eq('Transfer');
+            logs[3].args._from.should.be.equal(sender);
+            logs[3].args._to.should.be.equal(to);
+            logs[3].args._tokenId.should.be.bignumber.equal(tokenId);
           });
 
           it('adjusts owners counts', async function () {
@@ -496,17 +497,17 @@ contract('ERC721Token', accounts => {
         it('emits an approval and transfer events', async function () {
           const { logs } = await token.takeOwnership(tokenId, { from: sender });
 
-          logs.length.should.be.equal(2);
+          logs.length.should.be.equal(4);
 
           logs[0].event.should.be.eq('Approval');
           logs[0].args._owner.should.be.equal(_creator);
           logs[0].args._approved.should.be.equal(ZERO_ADDRESS);
           logs[0].args._tokenId.should.be.bignumber.equal(tokenId);
 
-          logs[1].event.should.be.eq('Transfer');
-          logs[1].args._from.should.be.equal(_creator);
-          logs[1].args._to.should.be.equal(sender);
-          logs[1].args._tokenId.should.be.bignumber.equal(tokenId);
+          logs[3].event.should.be.eq('Transfer');
+          logs[3].args._from.should.be.equal(_creator);
+          logs[3].args._to.should.be.equal(sender);
+          logs[3].args._tokenId.should.be.bignumber.equal(tokenId);
         });
 
         it('adjusts owners counts', async function () {
